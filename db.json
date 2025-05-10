@@ -1,0 +1,16 @@
+{
+  "produtos": [
+    {
+      "id": 1,
+      "nome": "Perfume A",
+      "quantidade": 10,
+      "preco": 50.0
+    },
+    {
+      "id": 2,
+      "nome": "Perfume B",
+      "quantidade": 20,
+      "preco": 70.0
+    }
+  ]
+}
