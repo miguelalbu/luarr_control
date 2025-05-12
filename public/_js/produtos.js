@@ -1,59 +1,102 @@
-const form = document.getElementById('formProduto');
-const tabela = document.getElementById('tabelaProdutos');
+document.addEventListener("DOMContentLoaded", function() {
+  const formProduto = document.getElementById("formProduto");
+  const tabelaProdutos = document.getElementById("tabelaProdutos");
+  const produtoIdInput = document.getElementById("produtoId");
 
-// Carrega produtos do localStorage
-function carregarProdutos() {
-    const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-    atualizarTabela(produtos);
-}
+  // Função para listar os produtos na tabela
+  function listarProdutos() {
+    fetch('/api/produtos')
+      .then(response => response.json())
+      .then(produtos => {
+        tabelaProdutos.innerHTML = '';
+        produtos.forEach(produto => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${produto.nome}</td>
+            <td>${produto.quantidade}</td>
+            <td>R$ ${produto.preco.toFixed(2)}</td>
+            <td>R$ ${(produto.quantidade * produto.preco).toFixed(2)}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editarProduto(${produto.id})">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="deletarProduto(${produto.id})">Deletar</button>
+            </td>
+          `;
+          tabelaProdutos.appendChild(tr);
+        });
+      });
+  }
 
-// Atualiza a tabela com os produtos
-function atualizarTabela(produtos) {
-    tabela.innerHTML = ''; // Limpa a tabela
+  // Função para editar um produto
+  window.editarProduto = function(id) {
+    fetch(`/api/produtos/${id}`)
+      .then(response => response.json())
+      .then(produto => {
+        produtoIdInput.value = produto.id;
+        document.getElementById("nome").value = produto.nome;
+        document.getElementById("quantidade").value = produto.quantidade;
+        document.getElementById("preco").value = produto.preco;
+        document.getElementById("btnSalvar").textContent = 'Atualizar Produto';
+      });
+  };
 
-    produtos.forEach((p, index) => {
-        tabela.innerHTML += `
-        <tr>
-            <td>${p.nome}</td>
-            <td>${p.quantidade}</td>
-            <td>R$ ${parseFloat(p.preco).toFixed(2)}</td>
-            <td>R$ ${(p.quantidade * p.preco).toFixed(2)}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="removerProduto(${index})">Excluir</button></td>
-        </tr>
-        `;
-    });
-}
-
-// Adiciona um novo produto
-form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const nome = document.getElementById('nome').value.trim();
-    const quantidade = parseInt(document.getElementById('quantidade').value);
-    const preco = parseFloat(document.getElementById('preco').value);
-
-    if (!nome || isNaN(quantidade) || isNaN(preco)) {
-        alert("Preencha todos os campos corretamente.");
-        return;
+  // Função para deletar um produto
+  window.deletarProduto = function(id) {
+    if (confirm('Tem certeza que deseja excluir este produto?')) {
+      fetch(`/api/produtos/${id}`, {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+      .then(() => {
+        listarProdutos();
+      })
+      .catch(err => alert('Erro ao excluir produto'));
     }
+  };
 
-    const produto = { nome, quantidade, preco: preco.toFixed(2) };
+  // Ao submeter o formulário, salvar ou atualizar o produto
+  formProduto.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-    const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-    produtos.push(produto);
-    localStorage.setItem('produtos', JSON.stringify(produtos));
+    const id = produtoIdInput.value;
+    const nome = document.getElementById("nome").value;
+    const quantidade = document.getElementById("quantidade").value;
+    const preco = document.getElementById("preco").value;
 
-    carregarProdutos(); // Atualiza a tabela
-    form.reset();       // Limpa o formulário
+    const data = { nome, quantidade, preco };
+
+    if (id) {
+      // Atualizando produto
+      fetch(`/api/produtos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        listarProdutos();
+        formProduto.reset();
+        produtoIdInput.value = '';
+        document.getElementById("btnSalvar").textContent = 'Adicionar Produto';
+      })
+      .catch(err => alert('Erro ao atualizar produto'));
+    } else {
+      // Adicionando novo produto
+      fetch('/api/produtos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        listarProdutos();
+        formProduto.reset();
+      })
+      .catch(err => alert('Erro ao adicionar produto'));
+    }
+  });
+
+  // Inicializa a listagem de produtos
+  listarProdutos();
 });
-
-// Remove produto pelo índice
-function removerProduto(index) {
-    const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
-    produtos.splice(index, 1);
-    localStorage.setItem('produtos', JSON.stringify(produtos));
-    carregarProdutos();
-}
-
-// Carrega os produtos ao iniciar a página
-document.addEventListener("DOMContentLoaded", carregarProdutos);
