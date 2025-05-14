@@ -16,4 +16,14 @@ db.run(`
   )
 `);
 
+db.run(`
+  CREATE TABLE IF NOT EXISTS despesas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    descricao TEXT NOT NULL,
+    valor INTEGER NOT NULL,
+    categoria TEXT NOT NULL,
+    data TEXT
+  )
+`);
+
 module.exports = db;
