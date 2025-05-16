@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Luar Cosméticos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .card-resumo {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="_js/auth.js"></script>
+</head>
+<body>
+  <script>checkAuth();</script>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Luar Cosméticos</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="produtos.html">Produtos</a></li>
+          <li class="nav-item"><a class="nav-link" href="despesas.html">Despesas</a></li>
+          <li class="nav-item"><a class="nav-link" href="relatorios.html">Relatórios</a></li>
+          <li class="nav-item"><a class="nav-link" href="admin-usuarios.html">Admin</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Sair</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Conteúdo principal -->
+  <div class="container mt-5">
+    <h2 class="mb-4">Bem-vindo(a) ao Sistema Luar Cosméticos</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card text-bg-success shadow">
+          <div class="card-body">
+            <h5 class="card-title">Total de Produtos</h5>
+            <p class="card-resumo" id="totalProdutos">78</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-bg-danger shadow">
+          <div class="card-body">
+            <h5 class="card-title">Despesas do Mês</h5>
+            <p class="card-resumo" id="despesasMes">R$ 850,00</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-bg-warning shadow">
+          <div class="card-body">
+            <h5 class="card-title">Investimento em Estoque</h5>
+            <p class="card-resumo" id="estoqueEstimado">R$ 2.500,00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Atalhos -->
+    <div class="mt-5">
+      <h4>Atalhos Rápidos</h4>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="produtos.html" class="btn btn-outline-primary">📦 Gerenciar Produtos</a>
+        <a href="despesas.html" class="btn btn-outline-danger">💰 Registrar Despesas</a>
+        <a href="relatorios.html" class="btn btn-outline-success">📊 Ver Relatórios</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="_js/dashboard.js"></script>
+</body>
+</html>

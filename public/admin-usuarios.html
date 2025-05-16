@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gerenciar Usuários - Luar Cosméticos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="_js/auth.js"></script>
+</head>
+<body>
+    <script>
+        // Verifica autenticação e permissões admin
+        async function init() {
+            await checkAuth();
+            await checkAdmin();
+        }
+        init();
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Luar Cosméticos</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">Gerenciar Usuários</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="logout(); return false;">Sair</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>👥 Gerenciar Usuários do Sistema</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                ➕ Adicionar Usuário
+            </button>
+        </div>
+
+        <div class="table-responsive mt-4">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>E-mail</th>
+                        <th>Status</th>
+                        <th>Data de Criação</th>
+                        <th>Último Acesso</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Usuário -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adicionar Novo Usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label for="newEmail" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="newEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addUser()">Adicionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function loadUsers() {
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const tableBody = document.getElementById('usersTable');
+                tableBody.innerHTML = '';
+
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.email}</td>
+                        <td>${user.is_active ? 
+                            '<span class="badge bg-success">Ativo</span>' : 
+                            '<span class="badge bg-warning">Inativo</span>'}
+                        </td>
+                        <td>${new Date(user.created_at).toLocaleDateString('pt-BR')}</td>
+                        <td>${user.last_login ? 
+                            new Date(user.last_login).toLocaleDateString('pt-BR') : 
+                            'Nunca'}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="toggleUserStatus('${user.id}', ${!user.is_active})">
+                                ${user.is_active ? '🚫 Desativar' : '✅ Ativar'}
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+                alert('Erro ao carregar lista de usuários.');
+            }
+        }
+
+        async function addUser() {
+            const email = document.getElementById('newEmail').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+
+            try {
+                // Primeiro registra o usuário no auth
+                const { data, error: authError } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (authError) throw authError;
+
+                // Depois adiciona na nossa tabela de usuários
+                const { error: dbError } = await supabaseClient
+                    .from('users')
+                    .insert([{ 
+                        id: data.user.id,
+                        email: email
+                    }]);
+
+                if (dbError) throw dbError;
+
+                alert('Usuário adicionado com sucesso!');
+                loadUsers();
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            } catch (error) {
+                console.error('Erro ao adicionar usuário:', error);
+                alert('Erro ao adicionar usuário: ' + error.message);
+            }
+        }
+
+        async function toggleUserStatus(userId, newStatus) {
+            if (!confirm(`Tem certeza que deseja ${newStatus ? 'ativar' : 'desativar'} este usuário?`)) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({ is_active: newStatus })
+                    .eq('id', userId);
+
+                if (error) throw error;
+
+                alert(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
+                loadUsers();
+            } catch (error) {
+                console.error('Erro ao atualizar status do usuário:', error);
+                alert('Erro ao atualizar status do usuário.');
+            }
+        }
+
+        // Carregar usuários quando a página for aberta
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>
