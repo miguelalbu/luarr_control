@@ -1,39 +1,31 @@
-const despesas = [
-    { descricao: "Compra de embalagens", valor: 150.00, categoria: "Embalagens", data: "2024-07-10" },
-    { descricao: "Transporte de mercadoria", valor: 200.00, categoria: "Transporte", data: "2024-07-12" },
-    { descricao: "Compra de matéria-prima", valor: 500.00, categoria: "Matéria-prima", data: "2024-07-14" }
-];
+async function carregarRelatorio() {
+  try {
+    const res = await fetch("/api/relatorios");
+    const dados = await res.json();
 
-const estoqueEstimado = 2500.00;
+    // Atualiza os totais
+    document.getElementById("totalDespesas").innerText = `R$ ${dados.totalDespesas.toFixed(2)}`;
+    document.getElementById("totalEstoque").innerText = `R$ ${dados.investimentoEstoque.toFixed(2)}`;
+    document.getElementById("lucroEstimado").innerText = `R$ ${dados.lucroEstimado.toFixed(2)}`;
 
-function carregarRelatorio() {
-    let totalDespesas = 0;
+    // Preenche a tabela
     const tabela = document.getElementById("tabelaRelatorio");
-    tabela.innerHTML = "";  // Limpar a tabela antes de adicionar as linhas
-
-    despesas.forEach(d => {
-        totalDespesas += d.valor;
-        tabela.innerHTML += `
+    tabela.innerHTML = "";
+    dados.despesas.forEach(d => {
+      tabela.innerHTML += `
         <tr>
-            <td>${d.descricao}</td>
-            <td>R$ ${d.valor.toFixed(2)}</td>
-            <td>${d.categoria}</td>
-            <td>${d.data}</td> <!-- Corrigido aqui -->
+          <td>${d.descricao}</td>
+          <td>R$ ${d.valor.toFixed(2)}</td>
+          <td>${d.categoria}</td>
+          <td>${d.data}</td>
         </tr>
-        `;
+      `;
     });
 
-    // Atualizando os totais
-    document.getElementById("totalDespesas").innerText = `R$ ${totalDespesas.toFixed(2)}`;
-    document.getElementById("totalEstoque").innerText = `R$ ${estoqueEstimado.toFixed(2)}`;
-    document.getElementById("lucroEstimado").innerText = `R$ ${(estoqueEstimado - totalDespesas).toFixed(2)}`;
+  } catch (err) {
+    console.error("Erro ao carregar relatório:", err);
+    alert("Erro ao carregar relatório. Veja o console.");
+  }
 }
 
-function exportarExcel() {
-    alert("📦 Exportação para Excel será implementada com backend futuramente!");
-}
-
-// Chama a função para carregar o relatório assim que a página for carregada
-document.addEventListener("DOMContentLoaded", function () {
-    carregarRelatorio();
-});
+document.addEventListener("DOMContentLoaded", carregarRelatorio);
