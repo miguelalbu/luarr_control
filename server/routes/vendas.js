@@ -13,6 +13,70 @@ router.get('/produtos', (req, res) => {
     });
 });
 
+// Buscar dados do caixa por data
+router.get('/caixa', (req, res) => {
+    const data = req.query.data || new Date().toISOString().split('T')[0];
+    
+    db.serialize(() => {
+        // Buscar totais por forma de pagamento
+        db.all(`
+            SELECT 
+                forma_pagamento,
+                COUNT(*) as quantidade_vendas,
+                SUM(total) as total 
+            FROM vendas 
+            WHERE date(data) = date(?)
+            GROUP BY forma_pagamento
+        `, [data], (err, totaisPorForma) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+
+            const totais = {
+                total: 0,
+                dinheiro: 0,
+                cartao: 0,
+                pix: 0,
+                quantidade_vendas: 0
+            };
+
+            totaisPorForma.forEach(item => {
+                totais[item.forma_pagamento] = Number(item.total);
+                totais.total += Number(item.total);
+                totais.quantidade_vendas += Number(item.quantidade_vendas);
+            });
+
+            // Buscar movimentações do dia
+            db.all(`
+                SELECT 
+                    id,
+                    datetime(data) as data,
+                    total,
+                    forma_pagamento,
+                    itens
+                FROM vendas 
+                WHERE date(data) = date(?)
+                ORDER BY data DESC
+            `, [data], (err, movimentacoes) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+
+                res.json({
+                    data,
+                    totais,
+                    movimentacoes: movimentacoes.map(mov => ({
+                        ...mov,
+                        itens: JSON.parse(mov.itens)
+                    }))
+                });
+            });
+        });
+    });
+});
+
 // Registrar nova venda
 router.post('/', (req, res) => {
     const { total, forma_pagamento, itens } = req.body;
@@ -62,8 +126,9 @@ router.post('/', (req, res) => {
     });
 });
 
+// Listar vendas com filtros
 router.get('/listar', (req, res) => {
-    const{ dataInicial, dataFinal, formaPagamento} = req.query;
+    const { dataInicial, dataFinal, formaPagamento } = req.query;
 
     let sql = 'SELECT * FROM vendas';
     const params = [];
@@ -96,9 +161,10 @@ router.get('/listar', (req, res) => {
             return;
         }
         res.json(rows);
-    })
-})
+    });
+});
 
+// Buscar venda específica
 router.get('/:id', (req, res) => {
     db.get('SELECT * FROM vendas WHERE id = ?', [req.params.id], (err, venda) => {
         if (err) {
