@@ -1,12 +1,34 @@
 # Luar Cosméticos - Sistema de Gestão
 
 ## 📋 Sobre o Projeto
-Sistema web desenvolvido para gerenciamento interno da Luar Cosméticos, permitindo controle de produtos, vendas, despesas e relatórios financeiros.
+Sistema web desenvolvido para gerenciamento interno da Luar Cosméticos, permitindo controle de produtos, vendas, caixa, despesas e relatórios financeiros.
+
+## 📦 Instalação e Uso
+
+1. **Clone o Repositório**
+```bash
+git clone [URL_DO_REPOSITÓRIO]
+cd luarr_control
+```
+
+2. **Instale as Dependências**
+```bash
+npm install
+```
+
+3. **Inicie o Servidor**
+```bash
+# Desenvolvimento
+npm run dev
+
+# Produção
+npm start
+```
 
 ## 🚀 Funcionalidades
 
 ### 🔐 Autenticação e Segurança
-- Sistema de login seguro (SupaBase)
+- Sistema de login seguro
 - Gerenciamento de usuários (apenas para administradores)
 - Proteção de rotas para usuários não autenticados
 
@@ -15,36 +37,49 @@ Sistema web desenvolvido para gerenciamento interno da Luar Cosméticos, permiti
 #### 1. Dashboard
 - Visão geral do sistema
 - Resumo de produtos cadastrados
-- Informações financeiras
+- Informações financeiras em tempo real
+- Gráficos de desempenho
 
 #### 2. Produtos
-- Cadastro de produtos
-- Gerenciamento de estoque
-- Listagem e edição
+- Cadastro e edição de produtos
+- Gerenciamento de estoque automatizado
+- Sistema de alertas de estoque baixo
+- Histórico de movimentações
 
 #### 3. Vendas
-- **Novo**: Registro de vendas com desconto automático no estoque
-- **Novo**: Múltiplos produtos por venda
-- **Novo**: Cálculo automático do total
-- **Novo**: Diferentes formas de pagamento (Dinheiro, Cartão, PIX)
-- **Novo**: Histórico completo de vendas realizadas
-- **Novo**: Filtros por data e forma de pagamento
-- **Novo**: Visualização detalhada de cada venda
+- Registro de vendas com interface intuitiva
+- Desconto automático no estoque
+- Múltiplos produtos por venda
+- Cálculo automático do total
+- Diferentes formas de pagamento (Dinheiro, Cartão, PIX)
+- Histórico completo de vendas
+- Filtros avançados por data e forma de pagamento
+- Visualização detalhada de cada venda
 
-#### 4. Despesas
+#### 4. Caixa
+- **Novo**: Controle diário de caixa
+- **Novo**: Totalizadores por forma de pagamento
+- **Novo**: Visualização de movimentações do dia
+- **Novo**: Filtros por data específica
+- **Novo**: Relatório detalhado de vendas
+
+#### 5. Despesas
 - Registro de despesas
-- Categorização
+- Categorização automática
 - Acompanhamento financeiro
+- Análise de gastos
 
-#### 5. Relatórios
-- Relatórios financeiros
-- Análise de despesas
+#### 6. Relatórios
+- Relatórios financeiros detalhados
+- Análise de vendas e despesas
 - Estatísticas do negócio
+- Exportação de dados
 
-#### 6. Administração
+#### 7. Administração
 - Gerenciamento de usuários
 - Controle de acessos
-- Ativação/desativação de contas
+- Configurações do sistema
+- Backup de dados
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -52,51 +87,61 @@ Sistema web desenvolvido para gerenciamento interno da Luar Cosméticos, permiti
 - HTML5
 - CSS3 (Bootstrap 5.3.3)
 - JavaScript (Vanilla)
+- Responsividade Mobile-First
 
 ### Backend:
 - Node.js
 - Express.js
-- SQLite3 (Banco de dados)
-- Supabase (Backend as a Service)
-- PostgreSQL (Através do Supabase)
+- SQLite3 (Banco de dados local)
+- Nodemon (Desenvolvimento)
 
+## 💾 Estrutura do Banco de Dados
+
+### Tabelas
+- `produtos`: Gerenciamento de produtos e estoque
+- `vendas`: Registro de vendas e itens
+- `despesas`: Controle financeiro
+- `users`: Administração de usuários
 
 ## 👥 Perfis de Acesso
 
 ### Administrador
-- Acesso total ao sistema
+- Acesso completo ao sistema
 - Gerenciamento de usuários
 - Configurações avançadas
+- Relatórios gerenciais
 
 ### Usuário Comum
-- Acesso ao dashboard
-- Registro de produtos e vendas
-- Visualização de relatórios
+- Registro de vendas
+- Consulta de produtos
+- Movimentação de caixa
+- Visualização de relatórios básicos
 
 ## 🔒 Segurança
-- Autenticação de usuários
-- Proteção contra acesso não autorizado
-- Políticas de segurança no banco de dados
-- Gerenciamento de sessões
-
-## 💾 Banco de Dados
-
-### Tabelas Principais
-- `produtos`: Cadastro e controle de estoque
-- `vendas`: Registro de vendas realizadas
-- `despesas`: Controle de despesas
-- `users`: Gerenciamento de usuários
+- Autenticação segura
+- Proteção contra acessos não autorizados
+- Validação de dados
+- Controle de sessão
 
 ## 📱 Responsividade
-- Interface adaptável para diferentes dispositivos
-- Design responsivo com Bootstrap
-- Navegação otimizada para mobile
+- Design responsivo
+- Interface adaptável
+- Otimizado para dispositivos móveis
+- Experiência consistente em todas as telas
 
-## ⚠️ Notas Importantes
-- Sistema desenvolvido para uso interno
-- Mantenha backups regulares do banco de dados
-- Atualize senhas periodicamente
+## ⚠️ Requisitos do Sistema
+- Node.js >= 18.0.0
+- NPM >= 9.0.0
+- Navegador moderno
+- 512MB RAM (mínimo)
+- 1GB de espaço em disco
 
+## 🔄 Atualizações Recentes
+- Adição do módulo de Caixa
+- Melhorias na interface de vendas
+- Otimização do banco de dados
+- Correções de bugs
 
 ## 📄 Licença
-Este projeto é de código aberto sob licença Luar Cosméticos.
+Este projeto é proprietário da Luar Cosméticos.
+Todos os direitos reservados.
