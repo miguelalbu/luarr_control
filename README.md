@@ -1,5 +1,9 @@
 # Luar Cosméticos - Sistema de Gestão
-
+## 📸 Screenshots
+<div align="center">
+  <img src="screenshots/tela-vendas.png" alt="Tela de Vendas" width="400" style="margin-right: 10px"/>
+  <img src="screenshots/tela-caixa.png" alt="Tela do Caixa" width="400"/>
+</div>
 ## 📋 Sobre o Projeto
 Sistema web desenvolvido para gerenciamento interno da Luar Cosméticos, permitindo controle de produtos, vendas, caixa, despesas e relatórios financeiros.
 
