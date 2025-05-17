@@ -1,6 +1,8 @@
 let produtosDisponiveis = [];
 let itensVenda = [];
 let totalVenda = 0;
+let descontoAplicado = 0;
+let totalComDesconto = 0;
 
 // Adicionar produto à venda
 function adicionarProduto() {
@@ -75,7 +77,28 @@ function atualizarTabelaItens() {
 // Calcular total da venda
 function calcularTotal() {
     totalVenda = itensVenda.reduce((total, item) => total + item.subtotal, 0);
-    document.getElementById('totalVenda').textContent = `R$ ${totalVenda.toFixed(2)}`;
+    aplicarDesconto();
+}
+
+// Nova função para aplicar desconto
+function aplicarDesconto() {
+    const inputDesconto = document.getElementById('desconto');
+    descontoAplicado = parseFloat(inputDesconto.value) || 0;
+
+    // Validar se desconto não é maior que o total
+    if (descontoAplicado > totalVenda) {
+        alert('Desconto não pode ser maior que o valor total');
+        inputDesconto.value = 0;
+        descontoAplicado = 0;
+    }
+
+    totalComDesconto = totalVenda - descontoAplicado;
+    
+    // Atualizar exibição dos valores
+    document.getElementById('totalVenda').innerHTML = `
+        ${descontoAplicado > 0 ? `<del class="text-muted">R$ ${totalVenda.toFixed(2)}</del><br>` : ''}
+        <strong>R$ ${totalComDesconto.toFixed(2)}</strong>
+    `;
 }
 
 // Remover item da venda
@@ -110,7 +133,7 @@ async function carregarProdutos() {
     }
 }
 
-// Finalizar venda
+// Atualizar função finalizarVenda
 async function finalizarVenda() {
     if (itensVenda.length === 0) {
         alert('Adicione produtos à venda');
@@ -119,35 +142,48 @@ async function finalizarVenda() {
 
     try {
         const formaPagamento = document.getElementById('formaPagamento').value;
-        
+        const venda = {
+            total: totalComDesconto,
+            total_original: totalVenda,
+            desconto: descontoAplicado,
+            forma_pagamento: formaPagamento,
+            itens: itensVenda
+        };
+
+        console.log('Dados da venda:', venda); // Debug
+
         const response = await fetch('http://localhost:3000/api/vendas', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                total: totalVenda,
-                forma_pagamento: formaPagamento,
-                itens: itensVenda
-            })
+            body: JSON.stringify(venda)
         });
 
-        if (!response.ok) throw new Error('Erro ao registrar venda');
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert('Venda registrada com sucesso!');
-            itensVenda = [];
-            atualizarTabelaItens();
-            calcularTotal();
-            carregarProdutos();
-        } else {
-            throw new Error(result.error);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao finalizar venda');
         }
+
+        const result = await response.json();
+        alert(result.message || 'Venda registrada com sucesso!');
+        
+        // Limpar formulário
+        itensVenda = [];
+        totalVenda = 0;
+        descontoAplicado = 0;
+        totalComDesconto = 0;
+        
+        document.getElementById('desconto').value = '0';
+        document.getElementById('produto').value = '';
+        document.getElementById('quantidade').value = '1';
+        
+        atualizarTabelaItens();
+        calcularTotal();
+        
     } catch (error) {
         console.error('Erro ao finalizar venda:', error);
-        alert('Erro ao finalizar venda. Tente novamente.');
+        alert('Erro ao finalizar venda: ' + error.message);
     }
 }
 

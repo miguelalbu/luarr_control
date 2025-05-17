@@ -78,6 +78,18 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">Desconto (R$)</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="desconto" 
+                                   value="0" 
+                                   min="0" 
+                                   step="0.01" 
+                                   onchange="aplicarDesconto()"
+                                   onkeyup="aplicarDesconto()">
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">Forma de Pagamento</label>
                             <select class="form-select" id="formaPagamento">
                                 <option value="dinheiro">Dinheiro</option>

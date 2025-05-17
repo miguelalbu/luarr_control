@@ -77,19 +77,42 @@ router.get('/caixa', (req, res) => {
     });
 });
 
-// Registrar nova venda
+// Atualizar a rota POST de vendas
 router.post('/', (req, res) => {
-    const { total, forma_pagamento, itens } = req.body;
+    const { total, total_original, desconto, forma_pagamento, itens } = req.body;
+
+    // Validações
+    if (!total || !forma_pagamento || !itens || !Array.isArray(itens) || itens.length === 0) {
+        res.status(400).json({ error: 'Dados inválidos para a venda' });
+        return;
+    }
 
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
 
         try {
+            const sql = `
+                INSERT INTO vendas (
+                    total, 
+                    total_original, 
+                    desconto, 
+                    forma_pagamento, 
+                    itens
+                ) VALUES (?, ?, ?, ?, ?)
+            `;
+
             db.run(
-                'INSERT INTO vendas (total, forma_pagamento, itens) VALUES (?, ?, ?)',
-                [total, forma_pagamento, JSON.stringify(itens)],
+                sql,
+                [
+                    total,
+                    total_original || total,
+                    desconto || 0,
+                    forma_pagamento,
+                    JSON.stringify(itens)
+                ],
                 function(err) {
                     if (err) {
+                        console.error('Erro ao inserir venda:', err);
                         db.run('ROLLBACK');
                         res.status(500).json({ error: err.message });
                         return;
@@ -97,22 +120,29 @@ router.post('/', (req, res) => {
 
                     const vendaId = this.lastID;
                     let processedItems = 0;
+                    let hasError = false;
 
                     itens.forEach(item => {
                         db.run(
                             'UPDATE produtos SET quantidade = quantidade - ? WHERE id = ?',
                             [item.quantidade, item.produto.id],
                             (err) => {
-                                if (err) {
+                                if (err && !hasError) {
+                                    hasError = true;
+                                    console.error('Erro ao atualizar estoque:', err);
                                     db.run('ROLLBACK');
                                     res.status(500).json({ error: err.message });
                                     return;
                                 }
 
                                 processedItems++;
-                                if (processedItems === itens.length) {
+                                if (processedItems === itens.length && !hasError) {
                                     db.run('COMMIT');
-                                    res.json({ success: true, vendaId });
+                                    res.json({ 
+                                        success: true, 
+                                        vendaId,
+                                        message: 'Venda registrada com sucesso!'
+                                    });
                                 }
                             }
                         );
@@ -120,6 +150,7 @@ router.post('/', (req, res) => {
                 }
             );
         } catch (error) {
+            console.error('Erro na transação:', error);
             db.run('ROLLBACK');
             res.status(500).json({ error: error.message });
         }

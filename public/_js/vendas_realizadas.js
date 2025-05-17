@@ -77,39 +77,41 @@ async function verDetalhes(vendaId) {
         const modalBody = document.getElementById('detalhesVendaBody');
         modalBody.innerHTML = `
             <div class="mb-3">
-                <strong>Data:</strong> ${new Date(venda.data).toLocaleDateString('pt-BR')}
+            <strong>Data:</strong> ${new Date(venda.data).toLocaleDateString('pt-BR')}
             </div>
             <div class="mb-3">
-                <strong>Forma de Pagamento:</strong> ${formatarFormaPagamento(venda.forma_pagamento)}
+            <strong>Forma de Pagamento:</strong> ${formatarFormaPagamento(venda.forma_pagamento)}
             </div>
             <div class="mb-3">
-                <strong>Itens:</strong>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th>Quantidade</th>
-                            <th>Preço Unit.</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itens.map(item => `
-                            <tr>
-                                <td>${item.produto.nome}</td>
-                                <td>${item.quantidade}</td>
-                                <td>R$ ${item.produto.preco.toFixed(2)}</td>
-                                <td>R$ ${item.subtotal.toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                            <td><strong>R$ ${Number(venda.total).toFixed(2)}</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <strong>Itens:</strong>
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unit.</th>
+                    <th>Subtotal</th>
+                </tr>
+                </thead>
+                <tbody>
+                ${itens.map(item => `
+                    <tr>
+                    <td>${item.produto.nome}</td>
+                    <td>${item.quantidade}</td>
+                    <td>R$ ${item.produto.preco.toFixed(2)}</td>
+                    <td>R$ ${item.subtotal.toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Desconto:</strong></td>
+                    <td colspan="3" class="text-end"><strong>R$ ${Number(venda.desconto || 0).toFixed(2)}</strong></td>
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td><strong>R$ ${Number(venda.total).toFixed(2)}</strong></td>
+                </tr>
+                </tfoot>
+            </table>
             </div>
         `;
 

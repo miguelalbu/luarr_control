@@ -33,7 +33,6 @@ async function loadUsers() {
         });
     } catch (error) {
         console.error('Erro ao carregar usuários:', error);
-        alert('Erro ao carregar lista de usuários.');
     }
 }
 

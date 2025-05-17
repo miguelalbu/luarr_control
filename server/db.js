@@ -6,6 +6,17 @@ const dbPath = path.resolve(__dirname, 'produtos.db');
 
 // Função para criar as tabelas
 function createTables(db) {
+    // Primeiro adiciona as novas colunas
+    const alterTable = [
+        "PRAGMA foreign_keys=off;",
+        "BEGIN TRANSACTION;",
+        `ALTER TABLE vendas ADD COLUMN total_original DECIMAL(10,2) DEFAULT NULL;`,
+        `ALTER TABLE vendas ADD COLUMN desconto DECIMAL(10,2) DEFAULT 0;`,
+        "COMMIT;",
+        "PRAGMA foreign_keys=on;"
+    ];
+
+    // Definição das tabelas
     const tables = [
         `CREATE TABLE IF NOT EXISTS produtos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +39,8 @@ function createTables(db) {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data DATETIME DEFAULT CURRENT_TIMESTAMP,
             total DECIMAL(10,2) NOT NULL,
+            total_original DECIMAL(10,2),
+            desconto DECIMAL(10,2) DEFAULT 0,
             forma_pagamento TEXT NOT NULL,
             itens TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -35,6 +48,16 @@ function createTables(db) {
     ];
 
     db.serialize(() => {
+        // Tenta adicionar as novas colunas
+        alterTable.forEach(sql => {
+            db.run(sql, err => {
+                if (err && !err.message.includes('duplicate column')) {
+                    console.error('Erro ao alterar tabela:', err);
+                }
+            });
+        });
+
+        // Cria ou atualiza as tabelas
         tables.forEach(sql => {
             db.run(sql, err => {
                 if (err) {
