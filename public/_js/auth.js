@@ -33,3 +33,37 @@ async function logout() {
         alert('Erro ao fazer logout. Tente novamente.');
     }
 }
+
+// Adicione esta função de login
+async function handleLogin(e) {
+    e.preventDefault();
+    const msg = document.getElementById('msg');
+    msg.style.display = 'none';
+
+    const email = document.getElementById('inputEmail').value;
+    const password = document.getElementById('inputPassword').value;
+
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) throw error;
+
+        // Login bem sucedido
+        window.location.href = 'dashboard.html';
+    } catch (error) {
+        console.error('Erro no login:', error);
+        msg.textContent = 'Email ou senha inválidos';
+        msg.style.display = 'block';
+    }
+}
+
+// Adicione este código para inicializar o formulário
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+});
