@@ -181,6 +181,9 @@ async function finalizarVenda() {
         atualizarTabelaItens();
         calcularTotal();
         
+        // Redirecionar para a página de vendas realizadas
+        window.location.href = '/vendas_realizadas.html';
+        
     } catch (error) {
         console.error('Erro ao finalizar venda:', error);
         alert('Erro ao finalizar venda: ' + error.message);
